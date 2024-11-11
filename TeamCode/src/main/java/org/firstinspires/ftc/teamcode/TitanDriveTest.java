@@ -1,4 +1,4 @@
-
+package org.firstinspires.ftc.teamcode;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.Servo;
 
-@TeleOp(name="TitanDriveTest", group="TeleOp")
+@TeleOp(name="org.firstinspires.ftc.teamcode.TitanDriveTest", group="TeleOp")
 public class TitanDriveTest extends LinearOpMode {
     private DcMotor fL, fR, bL, bR;
     private DcMotor leftFront;
