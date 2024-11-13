@@ -53,50 +53,53 @@ public class TitanDriveAndArm extends LinearOpMode {
     double armPosition = (int) ARM_COLLAPSED_INTO_ROBOT;
     double armPositionFudgeFactor;
 
-    @Override
-    public void runOpMode() {
-
-        // Initialize Variables and Drive Motors
+    private void initializeDriveMotors() {
         leftFront = hardwareMap.get(DcMotor.class,"leftFront");
         rightFront = hardwareMap.get(DcMotor.class,"rightFront");
         leftRear = hardwareMap.get(DcMotor.class,"leftRear");
         rightRear = hardwareMap.get(DcMotor.class,"rightRear");
         imu = hardwareMap.get(IMU.class, "imu");
+    }
 
-        // Initialize Variables for Arm, Wrist, and Intake
+    private void armStartupSequence() {
         armMotor = hardwareMap.get(DcMotor.class, "armMotor");
-        armMotor.setTargetPosition(0);
-        armMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        armMotor.setTargetPosition((int) ARM_CLEAR_BARRIER);
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-
         intake = hardwareMap.get(CRServo.class, "intake");
         wrist = hardwareMap.get(Servo.class, "wrist");
         intake.setPower(INTAKE_OFF);
         wrist.setPosition(WRIST_FOLDED_IN);
-
+        armMotor.setTargetPosition(0);
+        armMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        armMotor.setTargetPosition((int) ARM_CLEAR_BARRIER);
+        // Wait .5 seconds
+        sleep(500);
+        // wrist.setPosition(WRIST_FOLDED_OUT);
         armMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    }
+
+    @Override
+    public void runOpMode() {
+
+        // Initialize Variables and Drive Motors
+        initializeDriveMotors();
+
+        // Initialize Variables for Arm, Wrist, and Intake
+        armStartupSequence();
 
         waitForStart();
         while (opModeIsActive()) {
             // DRIVE CODE START
+            // Y Axis: Forward & Backwards
             double y = gamepad1.left_stick_y; // Remember, Y stick value is reversed
+            // X Axis: Rotate Clockwise & Counter-Clockwise
             double x = gamepad1.left_stick_x;
+            // Strafe Left and Right
             double rx = gamepad1.right_stick_x;
 
-            // This button choice was made so that it is hard to hit on accident,
-            // it can be freely changed based on preference.
-            // The equivalent button is start on Xbox-style controllers.
-            if (gamepad1.options) {
-                imu.resetYaw();
-            }
-
+            // FIELD CENTRIC START
+            imu.resetYaw();
             double botHeading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+            // FIELD CENTRIC END
 
             // Rotate the movement direction counter to the bot's rotation
             double rotX = x * Math.cos(-botHeading) - y * Math.sin(-botHeading);
@@ -122,29 +125,42 @@ public class TitanDriveAndArm extends LinearOpMode {
             // ARM WRIST INTAKE CODE START
 
             // INTAKE
+            // Intake Off
             if (gamepad2.x) {
                 intake.setPower(INTAKE_OFF);
             }
+
             if (gamepad2.b) {
+                // Intake Deposit
                 intake.setPower(INTAKE_DEPOSIT);
             } else if (gamepad2.a) {
+                // Intake Collect
                 intake.setPower(INTAKE_COLLECT);
             } else {
+                // Intake Off
                 intake.setPower(INTAKE_OFF);
             }
             // INTAKE - END
+
+            // WRIST START
+            // Wrist into Collection position
             if (gamepad2.y) {
                 wrist.setPosition(WRIST_FOLDED_OUT);
             }
-            if (gamepad2.right_bumper) {
-                armMotor.setPower(0.2);
+            // Wrist into folded position
+            if (gamepad2.x){
+                wrist.setPosition(WRIST_FOLDED_IN);
             }
+            // WRIST END
 
-            // if (armMotor.getCurrentPosition() < ARM_COLLECT) {
-            armMotor.setPower((gamepad2.left_trigger * -1) / 1.2);
-            // } else if (armMotor.getCurrentPosition() > ARM_CLEAR_BARRIER) {
-            armMotor.setPower(gamepad2.right_trigger / 1.2);
+            // Rotate Arm Out
+            armMotor.setPower(-gamepad2.left_trigger * 1.5);
+            // Rotate Arm In
+            armMotor.setPower(gamepad2.right_trigger * 1.5);
             // ARM WRIST INTAKE CODE END
+            telemetry.addData("arm Target: ", armMotor.getTargetPosition());
+            telemetry.addData("arm Encoder: ", armMotor.getCurrentPosition());
+            telemetry.update();
         }
     }
 }
