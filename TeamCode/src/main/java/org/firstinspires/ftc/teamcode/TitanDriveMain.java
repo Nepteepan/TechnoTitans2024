@@ -11,11 +11,11 @@ import org.firstinspires.ftc.teamcode.control.movement.Drive;
 public class TitanDriveMain extends LinearOpMode {
 
     private boolean fieldCentric = false;
-    private final boolean useTelemetryData = true;
+    private final boolean showTelemetryData = true;
 
-    private final Drive driveController = new Drive(useTelemetryData, fieldCentric, gamepad1);
-    private final ArmWrist armWristController = new ArmWrist(useTelemetryData, 10, gamepad2);
-    private final Intake intakeController = new Intake(useTelemetryData, gamepad2);
+    private final Drive driveController = new Drive(showTelemetryData, fieldCentric, gamepad1);
+    private final ArmWrist armWristController = new ArmWrist(showTelemetryData, 10, gamepad2);
+    private final Intake intakeController = new Intake(showTelemetryData, gamepad2);
 
     @Override
     public void runOpMode() {
