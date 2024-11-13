@@ -165,7 +165,7 @@ public class TitanDriveTest extends LinearOpMode {
                     intake.setPower(INTAKE_OFF);
                     testArm.setPosition(WRIST_FOLDED_IN);
                 }
-
+                imu.resetYaw();
             /* Here we set the target position of our arm to match the variable that was selected
             by the driver.
             We also set the target velocity (speed) the motor runs at, and use setMode to run it.*/
