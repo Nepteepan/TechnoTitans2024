@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.IMU;
 
-@TeleOp(name="TitanDriveStable", group="TeleOp")
+@TeleOp(name="Titan: Drive Only", group="TeleOp")
 public class TitanDrive extends LinearOpMode {
     private DcMotor leftFront;
     private DcMotor rightFront;
