@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.control.movement;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.IMU;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
@@ -9,15 +10,21 @@ public class Drive extends LinearOpMode {
 
     private boolean showTelemetry = true;
     private boolean fieldCentric = true;
+    private final Gamepad controller;
     public DcMotor leftFront;
     public DcMotor rightFront;
     public DcMotor leftRear;
     public DcMotor rightRear;
     private IMU imu;
 
-    public Drive(boolean showTelemetryData, boolean useFieldCentric) {
+    public Drive(boolean showTelemetryData, boolean useFieldCentric, Gamepad driveController) {
         showTelemetry = showTelemetryData;
         fieldCentric = useFieldCentric;
+        controller = driveController;
+    }
+
+    public void setFieldCentric(boolean value) {
+        fieldCentric = value;
     }
 
     private void initializeDriveMotors() {
@@ -26,9 +33,10 @@ public class Drive extends LinearOpMode {
         leftRear = hardwareMap.get(DcMotor.class, "leftRear");
         rightRear = hardwareMap.get(DcMotor.class, "rightRear");
         imu = hardwareMap.get(IMU.class, "imu");
+        resetDriveMotors(leftFront, rightFront, leftRear, rightRear);
     }
 
-    // resetDriveMotors(leftFront, rightFront, leftRear, rightRear);
+    // To use, call: resetDriveMotors(leftFront, rightFront, leftRear, rightRear);
     private void resetDriveMotors(DcMotor... motors) {
         for (DcMotor motor : motors) {
             motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -43,13 +51,9 @@ public class Drive extends LinearOpMode {
 
         waitForStart();
         while (opModeIsActive()) {
-            double y = gamepad1.left_stick_y;
-            double x = gamepad1.left_stick_x;
-            double rx = gamepad1.right_stick_x;
-
-            if (gamepad1.options) {
-                imu.resetYaw();
-            }
+            double y = controller.left_stick_y;
+            double x = controller.left_stick_x;
+            double rx = controller.right_stick_x;
 
             double botHeading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
             double rotX = x * Math.cos(-botHeading) - y * Math.sin(-botHeading);
@@ -68,8 +72,13 @@ public class Drive extends LinearOpMode {
             leftRear.setPower(leftRearPower);
             rightRear.setPower(rightRearPower);
 
+            if (fieldCentric) {
+                imu.resetYaw();
+            }
+
             if (showTelemetry) {
                 telemetry.addLine("=== DRIVE OUTPUT ===");
+                telemetry.addData("Drive.fieldCentric", fieldCentric);
                 telemetry.addData("Drive.leftFront", leftFront.getPower());
                 telemetry.addData("Drive.rightFront", rightFront.getPower());
                 telemetry.addData("Drive.leftRear", leftRear.getPower());

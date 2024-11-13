@@ -2,10 +2,12 @@ package org.firstinspires.ftc.teamcode.control.collection;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.Gamepad;
 
 public class Intake extends LinearOpMode {
 
     private boolean showTelemetry = true;
+    private final Gamepad controller;
     public CRServo intake;
 
     // Speed & Direction
@@ -14,8 +16,9 @@ public class Intake extends LinearOpMode {
     final double INTAKE_DEPOSIT = 0.5;
 
     // Constructor
-    public Intake(boolean showTelemetryData) {
+    public Intake(boolean showTelemetryData, Gamepad intakeController) {
         showTelemetry = showTelemetryData;
+        controller = intakeController;
     }
 
     private void initializeIntakeServo() {
@@ -30,11 +33,11 @@ public class Intake extends LinearOpMode {
         waitForStart();
         while (opModeIsActive()) {
 
-            if (gamepad1.a) {
+            if (controller.a) {
                 intake.setPower(INTAKE_COLLECT);
-            } else if (gamepad1.x) {
+            } else if (controller.x) {
                 intake.setPower(INTAKE_OFF);
-            } else if (gamepad1.b) {
+            } else if (controller.b) {
                 intake.setPower(INTAKE_DEPOSIT);
             } else {
                 intake.setPower(INTAKE_OFF);
