@@ -5,14 +5,12 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.IMU;
 
-
 @TeleOp(name="TitanDriveStable", group="TeleOp")
 public class TitanDrive extends LinearOpMode {
     private DcMotor leftFront;
     private DcMotor rightFront;
     private DcMotor leftRear;
     private DcMotor rightRear;
-//    private Gamepad driverController;
     private IMU imu;
     @Override
     public void runOpMode() {
@@ -23,8 +21,6 @@ public class TitanDrive extends LinearOpMode {
         leftRear = hardwareMap.get(DcMotor.class,"leftRear");
         rightRear = hardwareMap.get(DcMotor.class,"rightRear");
         imu = hardwareMap.get(IMU.class, "imu");
-
-
 
         waitForStart();
         while (opModeIsActive()) {
