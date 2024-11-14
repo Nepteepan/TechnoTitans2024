@@ -55,6 +55,9 @@ public class Drive extends LinearOpMode {
             double x = controller.left_stick_x;
             double rx = controller.right_stick_x;
 
+            if (fieldCentric) {
+                imu.resetYaw();
+            }
             double botHeading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
             double rotX = x * Math.cos(-botHeading) - y * Math.sin(-botHeading);
             double rotY = x * Math.sin(-botHeading) + y * Math.cos(-botHeading);
@@ -71,10 +74,6 @@ public class Drive extends LinearOpMode {
             rightFront.setPower(rightFrontPower);
             leftRear.setPower(leftRearPower);
             rightRear.setPower(rightRearPower);
-
-            if (fieldCentric) {
-                imu.resetYaw();
-            }
 
             if (showTelemetry) {
                 telemetry.addLine("=== DRIVE OUTPUT ===");
