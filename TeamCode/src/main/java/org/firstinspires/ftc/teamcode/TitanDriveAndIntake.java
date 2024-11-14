@@ -19,22 +19,6 @@ public class TitanDriveAndIntake extends LinearOpMode {
     public CRServo intake = null; //the active intake servo
     public Servo wrist = null; //the wrist servo
 
-    /* Declare OpMode members. */
-
-    final double ARM_TICKS_PER_DEGREE = 19.7924893140647; //exact fraction is (194481/9826)
-
-    /*make sure the
-    arm is reset to collapsed inside the robot before you start the program.*/
-
-
-    final double ARM_COLLAPSED_INTO_ROBOT = 0;
-    final double ARM_COLLECT = 250 * ARM_TICKS_PER_DEGREE;
-    final double ARM_CLEAR_BARRIER = 230 * ARM_TICKS_PER_DEGREE;
-    final double ARM_SCORE_SPECIMEN = 160 * ARM_TICKS_PER_DEGREE;
-    final double ARM_SCORE_SAMPLE_IN_LOW = 160 * ARM_TICKS_PER_DEGREE;
-    final double ARM_ATTACH_HANGING_HOOK = 120 * ARM_TICKS_PER_DEGREE;
-    final double ARM_WINCH_ROBOT = 15 * ARM_TICKS_PER_DEGREE;
-
 
     //Variables to store the speed
     final double INTAKE_COLLECT = -1.0;
@@ -45,12 +29,6 @@ public class TitanDriveAndIntake extends LinearOpMode {
     final double WRIST_FOLDED_IN = 0.8333;
     final double WRIST_FOLDED_OUT = 0.455;
 
-    /* A number in degrees that the triggers can adjust the arm position by */
-    final double FUDGE_FACTOR = 15 * ARM_TICKS_PER_DEGREE;
-
-    /* Variables that are used to set the arm to a specific position */
-    double armPosition = (int) ARM_COLLAPSED_INTO_ROBOT;
-    double armPositionFudgeFactor;
 
     private void initializeDriveMotors() {
         leftFront = hardwareMap.get(DcMotor.class,"leftFront");
@@ -60,7 +38,7 @@ public class TitanDriveAndIntake extends LinearOpMode {
         imu = hardwareMap.get(IMU.class, "imu");
     }
 
-    private void armStartupSequence() {
+    private void ServoStartupSequence() {
         intake = hardwareMap.get(CRServo.class, "intake");
         wrist = hardwareMap.get(Servo.class, "wrist");
         intake.setPower(INTAKE_OFF);
@@ -78,8 +56,8 @@ public class TitanDriveAndIntake extends LinearOpMode {
         // Initialize Variables and Drive Motors
         initializeDriveMotors();
 
-        // Initialize Variables for Arm, Wrist, and Intake
-        armStartupSequence();
+        // Initialize Variables for Wrist, and Intake
+        ServoStartupSequence();
 
         waitForStart();
         while (opModeIsActive()) {
