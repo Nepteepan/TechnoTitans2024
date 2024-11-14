@@ -7,8 +7,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 
-@TeleOp(name="Titan: Drive with Arm", group="TeleOp")
-public class TitanDriveAndArm extends LinearOpMode {
+@TeleOp(name="Titan: Drive with Intake", group="TeleOp")
+public class TitanDriveAndIntake extends LinearOpMode {
     private DcMotor leftFront;
     private DcMotor rightFront;
     private DcMotor leftRear;
@@ -16,7 +16,6 @@ public class TitanDriveAndArm extends LinearOpMode {
     private IMU imu;
 
 
-    public DcMotor armMotor; //the arm motor
     public CRServo intake = null; //the active intake servo
     public Servo wrist = null; //the wrist servo
 
@@ -62,19 +61,15 @@ public class TitanDriveAndArm extends LinearOpMode {
     }
 
     private void armStartupSequence() {
-        armMotor = hardwareMap.get(DcMotor.class, "armMotor");
         intake = hardwareMap.get(CRServo.class, "intake");
         wrist = hardwareMap.get(Servo.class, "wrist");
         intake.setPower(INTAKE_OFF);
         wrist.setPosition(WRIST_FOLDED_IN);
-        armMotor.setTargetPosition(0);
-        armMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        armMotor.setTargetPosition((int) ARM_CLEAR_BARRIER);
+
         // Wait .5 seconds
         sleep(500);
         // wrist.setPosition(WRIST_FOLDED_OUT);
-        armMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
     }
 
     @Override
@@ -153,14 +148,8 @@ public class TitanDriveAndArm extends LinearOpMode {
             }
             // WRIST END
 
-            // Rotate Arm Out
-            armMotor.setPower(-gamepad2.left_trigger * 1.5);
-            // Rotate Arm In
-            armMotor.setPower(gamepad2.right_trigger * 1.5);
-            // ARM WRIST INTAKE CODE END
-            telemetry.addData("arm Target", armMotor.getTargetPosition());
-            telemetry.addData("arm Encoder", armMotor.getCurrentPosition());
-            telemetry.update();
+
+
         }
     }
 }
