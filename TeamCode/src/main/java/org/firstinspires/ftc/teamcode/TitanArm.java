@@ -41,11 +41,11 @@ public class TitanArm extends LinearOpMode {
     }
 
     public void moveWrist(Integer position) {
-        wristMover.moveToPosition(position);
+        // wristMover.moveToPosition(position);
     }
 
     public void moveArm(Integer position) {
-        shoulderMover.moveToPosition(position);
+        // shoulderMover.moveToPosition(position);
     }
 
     @Override
@@ -61,30 +61,32 @@ public class TitanArm extends LinearOpMode {
             if (gamepad2.y) {
                 // moveArm(750);
                 // moveWrist(328);
-//                shoulderMover.raiseArm();
-//                wristMover.raiseWrist();
+                // shoulderMover.raiseArm();
+                shoulder.setMotorEnable();
+                shoulder.setTargetPosition(2);
+                // wristMover.raiseWrist();
             }
 
             if (gamepad2.a) {
-//                theGaber.openSmallClaw();
-//                theGaber.openLargeClaw();
-//                shoulderMover.lowerArm();
-//                wristMover.lowerWrist();
+                // theGaber.openSmallClaw();
+                // theGaber.openLargeClaw();
+                // shoulderMover.lowerArm();
+                // wristMover.lowerWrist();
             }
 
             if (gamepad2.x) {
                 // theGaber.closeSmallClaw();
                 // theGaber.closeLargeClaw();
-                sleep(750);
+                // sleep(750);
                 // shoulderMover.setDrivePosition();
                 // wristMover.lowerWrist();
             }
 
             if (gamepad2.b) {
                 // theGaber.openLargeClaw();
-                sleep(500);
+                // sleep(500);
                 // theGaber.openSmallClaw();
-                sleep(100);
+                // sleep(100);
             }
             // End Drone Code
 
@@ -95,10 +97,10 @@ public class TitanArm extends LinearOpMode {
             if (lifterController.right_bumper) {
                 // theGaber.closeSmallClaw();
             }
-            if (lifterController.left_trigger>0) {
+            if (lifterController.left_trigger > 0) {
                 // theGaber.openLargeClaw();
             }
-            if (lifterController.right_trigger>0) {
+            if (lifterController.right_trigger > 0) {
                 // theGaber.closeLargeClaw();
             }
             // End Gaber Code

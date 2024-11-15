@@ -154,9 +154,9 @@ public class TitanDriveAndArm extends LinearOpMode {
             // WRIST END
 
             // Rotate Arm Out
-            armMotor.setPower(-gamepad2.left_trigger * 1.5);
+            armMotor.setPower(-gamepad2.left_trigger * .25);
             // Rotate Arm In
-            armMotor.setPower(gamepad2.right_trigger * 1.5);
+            armMotor.setPower(gamepad2.right_trigger * .25);
             // ARM WRIST INTAKE CODE END
             telemetry.addData("arm Target", armMotor.getTargetPosition());
             telemetry.addData("arm Encoder", armMotor.getCurrentPosition());
