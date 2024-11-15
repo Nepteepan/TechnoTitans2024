@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 
-@TeleOp(name="Titan: Drive with Arm", group="TeleOp")
+@TeleOp(name="Titan: Bot Controls v2.0", group="TeleOp")
 public class TitanDriveAndArm extends LinearOpMode {
     private DcMotor leftFront;
     private DcMotor rightFront;
@@ -140,23 +140,36 @@ public class TitanDriveAndArm extends LinearOpMode {
             // INTAKE - END
 
             // Rotate Arm Out
-            armMotor.setPower(-gamepad2.left_trigger * .25);
+            // armMotor.setPower(-gamepad2.left_trigger * .25);
             // Rotate Arm In
-            armMotor.setPower(gamepad2.right_trigger * .25);
+            // armMotor.setPower(gamepad2.right_trigger * .25);
+
+            // if (gamepad2.left_bumper) {
+            //     armMotor.setPower(-0.35);
+            // }
+            // if (gamepad2.right_bumper) {
+            //     armMotor.setPower(0.35);
+            // }
 
             if (gamepad2.right_bumper) {
-                targetArmPosition += 10;
+                targetArmPosition += 20;
             }
 
             if (gamepad2.left_bumper) {
-                targetArmPosition -= 10;
+                targetArmPosition -= 20;
             }
             
             armMotor.setTargetPosition(targetArmPosition);
+            armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            armMotor.setPower(0.4);
 
             // ARM WRIST INTAKE CODE END
-            telemetry.addData("arm Target", armMotor.getTargetPosition());
-            telemetry.addData("arm Encoder", armMotor.getCurrentPosition());
+            telemetry.addLine("=== ARM TELEMETRY ===");
+            telemetry.addData("Target Position", armMotor.getTargetPosition());
+            telemetry.addData("Current Position", armMotor.getCurrentPosition());
+            telemetry.addLine();
+            telemetry.addLine("=== INTAKE TELEMETRY ===");
+            telemetry.addData("Direction", intake.getPower());
             telemetry.update();
         }
     }
