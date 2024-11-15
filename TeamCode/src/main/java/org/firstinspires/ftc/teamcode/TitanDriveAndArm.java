@@ -14,11 +14,10 @@ public class TitanDriveAndArm extends LinearOpMode {
     private DcMotor leftRear;
     private DcMotor rightRear;
     private IMU imu;
-
+    private int targetArmPosition = 0;
 
     public DcMotor armMotor; //the arm motor
     public CRServo intake = null; //the active intake servo
-    public Servo wrist = null; //the wrist servo
 
     /* Declare OpMode members. */
 
@@ -64,16 +63,12 @@ public class TitanDriveAndArm extends LinearOpMode {
     private void armStartupSequence() {
         armMotor = hardwareMap.get(DcMotor.class, "armMotor");
         intake = hardwareMap.get(CRServo.class, "intake");
-        wrist = hardwareMap.get(Servo.class, "wrist");
         intake.setPower(INTAKE_OFF);
-        wrist.setPosition(WRIST_FOLDED_IN);
         armMotor.setTargetPosition(0);
         armMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        armMotor.setTargetPosition((int) ARM_CLEAR_BARRIER);
-        // Wait .5 seconds
-        sleep(500);
-        // wrist.setPosition(WRIST_FOLDED_OUT);
+        armMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        // armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        // armMotor.setTargetPosition((int) ARM_CLEAR_BARRIER);
         armMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
@@ -122,7 +117,9 @@ public class TitanDriveAndArm extends LinearOpMode {
             rightRear.setPower(backRightPower);
             // DRIVE CODE END
 
-            // ARM WRIST INTAKE CODE START
+            // ARM AND INTAKE CODE START
+
+
 
             // INTAKE
             // Intake Off
@@ -142,21 +139,21 @@ public class TitanDriveAndArm extends LinearOpMode {
             }
             // INTAKE - END
 
-            // WRIST START
-            // Wrist into Collection position
-            if (gamepad2.y) {
-                wrist.setPosition(WRIST_FOLDED_OUT);
-            }
-            // Wrist into folded position
-            if (gamepad2.x){
-                wrist.setPosition(WRIST_FOLDED_IN);
-            }
-            // WRIST END
-
             // Rotate Arm Out
             armMotor.setPower(-gamepad2.left_trigger * .25);
             // Rotate Arm In
             armMotor.setPower(gamepad2.right_trigger * .25);
+
+            if (gamepad2.right_bumper) {
+                targetArmPosition += 10;
+            }
+
+            if (gamepad2.left_bumper) {
+                targetArmPosition -= 10;
+            }
+            
+            armMotor.setTargetPosition(targetArmPosition);
+
             // ARM WRIST INTAKE CODE END
             telemetry.addData("arm Target", armMotor.getTargetPosition());
             telemetry.addData("arm Encoder", armMotor.getCurrentPosition());
