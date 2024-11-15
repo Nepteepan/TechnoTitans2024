@@ -13,8 +13,8 @@ import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 
 // NEED THIS
-// import org.firstinspires.ftc.teamcode.common.subsystems.lift.Shoulder;
-// import org.firstinspires.ftc.teamcode.common.subsystems.lift.Wrist;
+import org.firstinspires.ftc.teamcode.common.subsystems.lift.Shoulder;
+import org.firstinspires.ftc.teamcode.common.subsystems.lift.Wrist;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
