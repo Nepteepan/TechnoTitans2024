@@ -105,7 +105,7 @@ public class TitanDriveAndArm extends LinearOpMode {
             // Denominator is the largest motor power (absolute value) or 1
             // This ensures all the powers maintain the same ratio,
             // but only if at least one is out of the range [-1, 1]
-            double denominator = Math.max(Math.abs(rotY) + Math.abs(rotX) + Math.abs(rx), 1);
+            double denominator = Math.max(Math.abs(rotY) + Math.abs(rotX) + Math.abs(rx), .75);
             double frontLeftPower = (rotY + rotX + rx) / denominator;
             double backLeftPower = (rotY - rotX + rx) / denominator;
             double frontRightPower = (rotY - rotX - rx) / denominator;
@@ -150,7 +150,11 @@ public class TitanDriveAndArm extends LinearOpMode {
             // if (gamepad2.right_bumper) {
             //     armMotor.setPower(0.35);
             // }
+            if (gamepad2.dpad_left){
+                armMotor.setPower(2);
+                targetArmPosition -= 50;
 
+            }
             if (gamepad2.right_bumper) {
                 targetArmPosition += 20;
             }
