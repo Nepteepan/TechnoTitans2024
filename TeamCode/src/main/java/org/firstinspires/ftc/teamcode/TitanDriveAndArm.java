@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -18,6 +19,12 @@ public class TitanDriveAndArm extends LinearOpMode {
 
     public DcMotor armMotor; //the arm motor
     public CRServo intake = null; //the active intake servo
+
+    private enum intakeStatus {
+        COLLECTING,
+        IDLE,
+        DISPENSING
+    }
 
     /* Declare OpMode members. */
 
@@ -64,12 +71,30 @@ public class TitanDriveAndArm extends LinearOpMode {
         armMotor = hardwareMap.get(DcMotor.class, "armMotor");
         intake = hardwareMap.get(CRServo.class, "intake");
         intake.setPower(INTAKE_OFF);
+        intake.setDirection(DcMotorSimple.Direction.FORWARD);
         armMotor.setTargetPosition(0);
         armMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         armMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         // armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         // armMotor.setTargetPosition((int) ARM_CLEAR_BARRIER);
         armMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    }
+
+    private intakeStatus getIntakeStatus(double power) {
+        // -1 : Collecting, 1 : Dispensing, 0 : Idle
+        intakeStatus status = intakeStatus.IDLE;
+        switch((int) power) {
+            case -1:
+                status = intakeStatus.COLLECTING;
+                break;
+            case 0:
+                status = intakeStatus.IDLE;
+                break;
+            case 1:
+                status = intakeStatus.DISPENSING;
+                break;
+        }
+        return status;
     }
 
     @Override
@@ -87,9 +112,9 @@ public class TitanDriveAndArm extends LinearOpMode {
             // Y Axis: Forward & Backwards
             double y = gamepad1.left_stick_y; // Remember, Y stick value is reversed
             // X Axis: Rotate Clockwise & Counter-Clockwise
-            double x = gamepad1.left_stick_x;
+            double x = -gamepad1.left_stick_x;
             // Strafe Left and Right
-            double rx = gamepad1.right_stick_x;
+            double rx = -gamepad1.right_stick_x;
 
             // FIELD CENTRIC START
             imu.resetYaw();
@@ -105,7 +130,7 @@ public class TitanDriveAndArm extends LinearOpMode {
             // Denominator is the largest motor power (absolute value) or 1
             // This ensures all the powers maintain the same ratio,
             // but only if at least one is out of the range [-1, 1]
-            double denominator = Math.max(Math.abs(rotY) + Math.abs(rotX) + Math.abs(rx), .75);
+            double denominator = Math.max(Math.abs(rotY) + Math.abs(rotX) + Math.abs(rx), 1.25);
             double frontLeftPower = (rotY + rotX + rx) / denominator;
             double backLeftPower = (rotY - rotX + rx) / denominator;
             double frontRightPower = (rotY - rotX - rx) / denominator;
@@ -139,41 +164,38 @@ public class TitanDriveAndArm extends LinearOpMode {
             }
             // INTAKE - END
 
-            // Rotate Arm Out
-            // armMotor.setPower(-gamepad2.left_trigger * .25);
-            // Rotate Arm In
-            // armMotor.setPower(gamepad2.right_trigger * .25);
-
-            // if (gamepad2.left_bumper) {
-            //     armMotor.setPower(-0.35);
-            // }
-            // if (gamepad2.right_bumper) {
-            //     armMotor.setPower(0.35);
-            // }
             if (gamepad2.dpad_left){
                 armMotor.setPower(2);
                 targetArmPosition -= 50;
 
             }
             if (gamepad2.right_bumper) {
-                targetArmPosition += 20;
+                targetArmPosition += 8;
             }
 
             if (gamepad2.left_bumper) {
-                targetArmPosition -= 20;
+                targetArmPosition -= 7;
             }
-            
+
             armMotor.setTargetPosition(targetArmPosition);
             armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            armMotor.setPower(0.4);
+            armMotor.setPower(2.0);
 
             // ARM WRIST INTAKE CODE END
+            telemetry.addLine("=== DRIVE TELEMETRY ===");
+            telemetry.addData("Left Front Power", leftFront.getPower());
+            telemetry.addData("Left Rear Power", leftRear.getPower());
+            telemetry.addData("Right Front Power", rightFront.getPower());
+            telemetry.addData("Right Rear Power", rightRear.getPower());
+            telemetry.addLine();
             telemetry.addLine("=== ARM TELEMETRY ===");
             telemetry.addData("Target Position", armMotor.getTargetPosition());
             telemetry.addData("Current Position", armMotor.getCurrentPosition());
+            telemetry.addData("Mode", armMotor.getMode());
             telemetry.addLine();
             telemetry.addLine("=== INTAKE TELEMETRY ===");
-            telemetry.addData("Direction", intake.getPower());
+            telemetry.addData("Power", intake.getPower());
+            telemetry.addData("Status", getIntakeStatus(intake.getPower()));
             telemetry.update();
         }
     }
