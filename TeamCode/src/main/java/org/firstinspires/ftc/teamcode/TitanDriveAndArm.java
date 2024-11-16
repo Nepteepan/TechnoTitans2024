@@ -16,7 +16,7 @@ public class TitanDriveAndArm extends LinearOpMode {
     private DcMotor leftRear;
     private DcMotor rightRear;
     private IMU imu;
-    private int targetArmPosition = 0;
+    private int targetArmPosition = 100;
     private int targetElbowPosition = 0;
 
     public DcMotorEx elbow;
@@ -81,6 +81,10 @@ public class TitanDriveAndArm extends LinearOpMode {
         armMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         armMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
+        armMotor.setTargetPosition(targetArmPosition);
+        armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        armMotor.setPower(2.0);
+
         elbow = hardwareMap.get(DcMotorEx.class, "elbow");
         elbow.setTargetPosition(0);
         elbow.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
@@ -108,11 +112,15 @@ public class TitanDriveAndArm extends LinearOpMode {
     }
 
     private String getFrontDriveTelemetry(double leftPower, double rightPower) {
-        return "Left Front / Right Front: " + leftPower + " | " + rightPower;
+        leftPower = Math.round((leftPower) * 100);
+        rightPower = Math.round((rightPower) * 100);
+        return "Left Front / Right Front: " + leftPower + "% | " + rightPower + "%";
     }
 
     private String getRearDriveTelemetry(double leftPower, double rightPower) {
-        return "Left Rear / Right Rear: " + leftPower + " | " + rightPower;
+        leftPower = Math.round((leftPower) * 100);
+        rightPower = Math.round((rightPower) * 100);
+        return "Left Rear / Right Rear: " + leftPower + "% | " + rightPower + "%";
     }
 
     @Override
@@ -158,6 +166,13 @@ public class TitanDriveAndArm extends LinearOpMode {
             leftRear.setPower(backLeftPower);
             rightFront.setPower(frontRightPower);
             rightRear.setPower(backRightPower);
+            if (gamepad1.right_bumper){
+                leftFront.setPower(frontLeftPower / 8);
+                leftRear.setPower(backLeftPower / 8);
+                rightFront.setPower(frontRightPower / 8);
+                rightRear.setPower(backRightPower / 8);
+
+            }
             // DRIVE CODE END
 
             // ARM ELBOW INTAKE CODE START

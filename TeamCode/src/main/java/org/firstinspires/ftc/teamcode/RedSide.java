@@ -43,8 +43,8 @@ public class RedSide extends LinearOpMode {
         rightRear = hardwareMap.get(DcMotor.class, "rightRear");
         imu = hardwareMap.get(IMU.class, "imu");
     }
-    public void moveForwardInches(double numberOfInches, double power) {
-        double totalRevs = 35 * numberOfInches;
+    public void moveNumberOfInches(double numberOfInches, double power) {
+        double totalRevs = 42 * numberOfInches;
         leftRear.setDirection(DcMotor.Direction.REVERSE);
         leftFront.setDirection(DcMotor.Direction.REVERSE);
         rightRear.setDirection(DcMotor.Direction.REVERSE);
@@ -77,12 +77,20 @@ public class RedSide extends LinearOpMode {
 
         waitForStart();
         while (opModeIsActive()){
-            armMotor.setTargetPosition(40);
+            armMotor.setTargetPosition(100);
             armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             armMotor.setPower(1);
             sleep(500);
-            moveForwardInches(10, 1);
+            moveNumberOfInches(68, 1);
+            sleep(500);
             intake.setPower(INTAKE_DEPOSIT);
+            sleep(2000);
+            intake.setPower(INTAKE_OFF);
+            sleep(500);
+            moveNumberOfInches(-10, 1);
+            sleep(500);
+            armMotor.setTargetPosition(0);
+            requestOpModeStop();
         }
     }
 }
