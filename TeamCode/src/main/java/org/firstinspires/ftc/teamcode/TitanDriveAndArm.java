@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -16,7 +17,9 @@ public class TitanDriveAndArm extends LinearOpMode {
     private DcMotor rightRear;
     private IMU imu;
     private int targetArmPosition = 0;
+    private int targetElbowPosition = 0;
 
+    public DcMotorEx elbow;
     public DcMotor armMotor; //the arm motor
     public CRServo intake = null; //the active intake servo
 
@@ -68,20 +71,27 @@ public class TitanDriveAndArm extends LinearOpMode {
     }
 
     private void armStartupSequence() {
-        armMotor = hardwareMap.get(DcMotor.class, "armMotor");
         intake = hardwareMap.get(CRServo.class, "intake");
         intake.setPower(INTAKE_OFF);
         intake.setDirection(DcMotorSimple.Direction.FORWARD);
+
+        armMotor = hardwareMap.get(DcMotor.class, "armMotor");
         armMotor.setTargetPosition(0);
         armMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         armMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        // armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        // armMotor.setTargetPosition((int) ARM_CLEAR_BARRIER);
         armMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        elbow = hardwareMap.get(DcMotorEx.class, "elbow");
+        elbow.setTargetPosition(0);
+        elbow.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        elbow.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        elbow.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
     private intakeStatus getIntakeStatus(double power) {
-        // -1 : Collecting, 1 : Dispensing, 0 : Idle
+        // -1 : Collecting,
+        // 1 : Dispensing,
+        // 0 : Idle
         intakeStatus status = intakeStatus.IDLE;
         switch((int) power) {
             case -1:
@@ -97,13 +107,21 @@ public class TitanDriveAndArm extends LinearOpMode {
         return status;
     }
 
+    private String getFrontDriveTelemetry(double leftPower, double rightPower) {
+        return "Left Front / Right Front: " + leftPower + " | " + rightPower;
+    }
+
+    private String getRearDriveTelemetry(double leftPower, double rightPower) {
+        return "Left Rear / Right Rear: " + leftPower + " | " + rightPower;
+    }
+
     @Override
     public void runOpMode() {
 
         // Initialize Variables and Drive Motors
         initializeDriveMotors();
 
-        // Initialize Variables for Arm, Wrist, and Intake
+        // Initialize Variables for Arm, Elbow, and Intake
         armStartupSequence();
 
         waitForStart();
@@ -142,9 +160,7 @@ public class TitanDriveAndArm extends LinearOpMode {
             rightRear.setPower(backRightPower);
             // DRIVE CODE END
 
-            // ARM AND INTAKE CODE START
-
-
+            // ARM ELBOW INTAKE CODE START
 
             // INTAKE
             // Intake Off
@@ -164,11 +180,19 @@ public class TitanDriveAndArm extends LinearOpMode {
             }
             // INTAKE - END
 
-            if (gamepad2.dpad_left){
-                armMotor.setPower(2);
-                targetArmPosition -= 50;
-
+            // ELBOW - START
+            if (gamepad2.dpad_up) {
+                targetElbowPosition += 6;
             }
+            if (gamepad2.dpad_down) {
+                targetElbowPosition -= 6;
+            }
+            elbow.setTargetPosition(targetElbowPosition);
+            elbow.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            elbow.setPower(1);
+            // ELBOW - END
+
+            // ARM - START
             if (gamepad2.right_bumper) {
                 targetArmPosition += 8;
             }
@@ -180,18 +204,22 @@ public class TitanDriveAndArm extends LinearOpMode {
             armMotor.setTargetPosition(targetArmPosition);
             armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             armMotor.setPower(2.0);
+            // ARM - END
 
-            // ARM WRIST INTAKE CODE END
+            // ARM ELBOW INTAKE CODE END
+
+            // TELEMETRY OUTPUT
             telemetry.addLine("=== DRIVE TELEMETRY ===");
-            telemetry.addData("Left Front Power", leftFront.getPower());
-            telemetry.addData("Left Rear Power", leftRear.getPower());
-            telemetry.addData("Right Front Power", rightFront.getPower());
-            telemetry.addData("Right Rear Power", rightRear.getPower());
+            telemetry.addLine(getFrontDriveTelemetry(leftFront.getPower(), rightFront.getPower()));
+            telemetry.addLine(getRearDriveTelemetry(leftRear.getPower(), rightRear.getPower()));
             telemetry.addLine();
             telemetry.addLine("=== ARM TELEMETRY ===");
             telemetry.addData("Target Position", armMotor.getTargetPosition());
             telemetry.addData("Current Position", armMotor.getCurrentPosition());
-            telemetry.addData("Mode", armMotor.getMode());
+            telemetry.addLine();
+            telemetry.addLine("=== ELBOW TELEMETRY ===");
+            telemetry.addData("Target Position", elbow.getTargetPosition());
+            telemetry.addData("Current Position", elbow.getTargetPosition());
             telemetry.addLine();
             telemetry.addLine("=== INTAKE TELEMETRY ===");
             telemetry.addData("Power", intake.getPower());
