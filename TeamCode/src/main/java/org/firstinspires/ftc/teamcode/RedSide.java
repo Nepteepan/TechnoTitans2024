@@ -77,10 +77,11 @@ public class RedSide extends LinearOpMode {
 
         waitForStart();
         while (opModeIsActive()){
-            moveForwardInches(10, 1);
             armMotor.setTargetPosition(40);
             armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             armMotor.setPower(1);
+            sleep(500);
+            moveForwardInches(10, 1);
             intake.setPower(INTAKE_DEPOSIT);
         }
     }
