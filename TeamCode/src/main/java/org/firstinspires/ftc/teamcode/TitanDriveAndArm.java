@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 
-@TeleOp(name="Titan: Bot Controls v2.0", group="TeleOp")
+@TeleOp(name="Titan: Bot Controls v3.0", group="TeleOp")
 public class TitanDriveAndArm extends LinearOpMode {
     private DcMotor leftFront;
     private DcMotor rightFront;
@@ -19,48 +19,16 @@ public class TitanDriveAndArm extends LinearOpMode {
     private int targetArmPosition = 100;
     private int targetElbowPosition = 0;
 
-    public DcMotorEx elbow;
-    public DcMotor armMotor; //the arm motor
-    public CRServo intake = null; //the active intake servo
+    public DcMotor elbow;
+    public DcMotor armMotor; // the arm motor
+    public Servo leftClaw;
+    public Servo rightClaw;
 
-    private enum intakeStatus {
-        COLLECTING,
-        IDLE,
-        DISPENSING
+    private clawStatus _clawStatus = clawStatus.CLOSED;
+    private enum clawStatus {
+        OPEN,
+        CLOSED
     }
-
-    /* Declare OpMode members. */
-
-    final double ARM_TICKS_PER_DEGREE = 19.7924893140647; //exact fraction is (194481/9826)
-
-    /*make sure the
-    arm is reset to collapsed inside the robot before you start the program.*/
-
-
-    final double ARM_COLLAPSED_INTO_ROBOT = 0;
-    final double ARM_COLLECT = 250 * ARM_TICKS_PER_DEGREE;
-    final double ARM_CLEAR_BARRIER = 230 * ARM_TICKS_PER_DEGREE;
-    final double ARM_SCORE_SPECIMEN = 160 * ARM_TICKS_PER_DEGREE;
-    final double ARM_SCORE_SAMPLE_IN_LOW = 160 * ARM_TICKS_PER_DEGREE;
-    final double ARM_ATTACH_HANGING_HOOK = 120 * ARM_TICKS_PER_DEGREE;
-    final double ARM_WINCH_ROBOT = 15 * ARM_TICKS_PER_DEGREE;
-
-
-    //Variables to store the speed
-    final double INTAKE_COLLECT = -1.0;
-    final double INTAKE_OFF = 0.0;
-    final double INTAKE_DEPOSIT = 1.0;
-
-    /*  the wrist should be set to when folding in, or folding out. */
-    final double WRIST_FOLDED_IN = 0.8333;
-    final double WRIST_FOLDED_OUT = 0.455;
-
-    /* A number in degrees that the triggers can adjust the arm position by */
-    final double FUDGE_FACTOR = 15 * ARM_TICKS_PER_DEGREE;
-
-    /* Variables that are used to set the arm to a specific position */
-    double armPosition = (int) ARM_COLLAPSED_INTO_ROBOT;
-    double armPositionFudgeFactor;
 
     private void initializeDriveMotors() {
         leftFront = hardwareMap.get(DcMotor.class,"leftFront");
@@ -71,10 +39,6 @@ public class TitanDriveAndArm extends LinearOpMode {
     }
 
     private void armStartupSequence() {
-        intake = hardwareMap.get(CRServo.class, "intake");
-        intake.setPower(INTAKE_OFF);
-        intake.setDirection(DcMotorSimple.Direction.FORWARD);
-
         armMotor = hardwareMap.get(DcMotor.class, "armMotor");
         armMotor.setTargetPosition(0);
         armMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -84,31 +48,34 @@ public class TitanDriveAndArm extends LinearOpMode {
         armMotor.setTargetPosition(targetArmPosition);
         armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         armMotor.setPower(2.0);
+        sleep(500);
 
-        elbow = hardwareMap.get(DcMotorEx.class, "elbow");
+        elbow = hardwareMap.get(DcMotor.class, "elbow");
         elbow.setTargetPosition(0);
-        elbow.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        elbow.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         elbow.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         elbow.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        elbow.setDirection(DcMotorSimple.Direction.REVERSE);
+        sleep(500);
+        leftClaw = hardwareMap.get(Servo.class, "leftClaw");
+        leftClaw.setDirection(Servo.Direction.FORWARD);
+        leftClaw.setPosition(0);
+
+        rightClaw = hardwareMap.get(Servo.class, "rightClaw");
+        rightClaw.setDirection(Servo.Direction.REVERSE);
+        rightClaw.setPosition(0);
     }
 
-    private intakeStatus getIntakeStatus(double power) {
-        // -1 : Collecting,
-        // 1 : Dispensing,
-        // 0 : Idle
-        intakeStatus status = intakeStatus.IDLE;
-        switch((int) power) {
-            case -1:
-                status = intakeStatus.COLLECTING;
-                break;
-            case 0:
-                status = intakeStatus.IDLE;
-                break;
-            case 1:
-                status = intakeStatus.DISPENSING;
-                break;
-        }
-        return status;
+    private void openClaw() {
+        leftClaw.setPosition(0.5);
+        rightClaw.setPosition(0.5);
+        _clawStatus = clawStatus.OPEN;
+    }
+
+    private void closeClaw() {
+        leftClaw.setPosition(0);
+        rightClaw.setPosition(0);
+        _clawStatus = clawStatus.CLOSED;
     }
 
     private String getFrontDriveTelemetry(double leftPower, double rightPower) {
@@ -125,7 +92,6 @@ public class TitanDriveAndArm extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-
         // Initialize Variables and Drive Motors
         initializeDriveMotors();
 
@@ -175,32 +141,26 @@ public class TitanDriveAndArm extends LinearOpMode {
             }
             // DRIVE CODE END
 
-            // ARM ELBOW INTAKE CODE START
+            // ARM ELBOW CLAW CODE START
 
-            // INTAKE
-            // Intake Off
+            // CLAW - START
+            // Close Claw
             if (gamepad2.x) {
-                intake.setPower(INTAKE_OFF);
+                // intake.setPower(INTAKE_OFF);
+                openClaw();
             }
-
+            // Close Claw
             if (gamepad2.b) {
-                // Intake Deposit
-                intake.setPower(INTAKE_DEPOSIT);
-            } else if (gamepad2.a) {
-                // Intake Collect
-                intake.setPower(INTAKE_COLLECT);
-            } else {
-                // Intake Off
-                intake.setPower(INTAKE_OFF);
+                closeClaw();
             }
-            // INTAKE - END
+            // CLAW - END
 
             // ELBOW - START
-            if (gamepad2.dpad_up) {
-                targetElbowPosition += 6;
+            if (gamepad2.dpad_down && targetElbowPosition >= 0) {
+                targetElbowPosition -= 8;
             }
-            if (gamepad2.dpad_down) {
-                targetElbowPosition -= 6;
+            if (gamepad2.dpad_up && targetElbowPosition <= 180) {
+                targetElbowPosition += 8;
             }
             elbow.setTargetPosition(targetElbowPosition);
             elbow.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -208,12 +168,11 @@ public class TitanDriveAndArm extends LinearOpMode {
             // ELBOW - END
 
             // ARM - START
-            if (gamepad2.right_bumper) {
+            if (gamepad2.right_bumper && targetArmPosition <= 500) {
                 targetArmPosition += 8;
             }
-
-            if (gamepad2.left_bumper) {
-                targetArmPosition -= 7;
+            if (gamepad2.left_bumper && targetArmPosition >= 0) {
+                targetArmPosition -= 8;
             }
 
             armMotor.setTargetPosition(targetArmPosition);
@@ -236,9 +195,8 @@ public class TitanDriveAndArm extends LinearOpMode {
             telemetry.addData("Target Position", elbow.getTargetPosition());
             telemetry.addData("Current Position", elbow.getTargetPosition());
             telemetry.addLine();
-            telemetry.addLine("=== INTAKE TELEMETRY ===");
-            telemetry.addData("Power", intake.getPower());
-            telemetry.addData("Status", getIntakeStatus(intake.getPower()));
+            telemetry.addLine("=== CLAW TELEMETRY ===");
+            telemetry.addData("STATUS", _clawStatus);
             telemetry.update();
         }
     }
