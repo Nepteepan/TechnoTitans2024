@@ -1,18 +1,14 @@
 package org.firstinspires.ftc.teamcode.Autonomous;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.teamcode.TeleOp.TitanDriveAndArm;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
-@Autonomous(name="RedSide")
-public class RedSide extends LinearOpMode {
+@Autonomous(name="NetScoring")
+public class NetScoring extends LinearOpMode {
 
     public Servo leftClaw;
     public Servo rightClaw;
@@ -116,9 +112,10 @@ public class RedSide extends LinearOpMode {
             sleep(500);
             closeClaw();
             sleep(500);
-            moveNumberOfInches(-23, 1);
+            moveNumberOfInches(-40, 1);
             sleep(500);
             armMotor.setTargetPosition(0);
+            sleep(500);
             requestOpModeStop();
         }
     }
