@@ -23,9 +23,6 @@ public class RedSide extends LinearOpMode {
     private DcMotor elbow;
     private IMU imu;
     private int targetArmPosition = 0;
-    final double INTAKE_COLLECT = -1.0;
-    final double INTAKE_OFF = 0.0;
-    final double INTAKE_DEPOSIT = 1.0;
 
     public DcMotor armMotor; //the arm motor
     public CRServo intake = null; //the active intake servo
@@ -113,13 +110,13 @@ public class RedSide extends LinearOpMode {
             armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             armMotor.setPower(1);
             sleep(500);
-            moveNumberOfInches(68, 1);
-            sleep(500);
-            openClaw();
+            moveNumberOfInches(42, 1);
             sleep(2000);
+            openClaw();
+            sleep(500);
             closeClaw();
             sleep(500);
-            moveNumberOfInches(-10, 1);
+            moveNumberOfInches(-23, 1);
             sleep(500);
             armMotor.setTargetPosition(0);
             requestOpModeStop();
