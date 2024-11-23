@@ -160,7 +160,7 @@ public class TitanDriveAndArm extends LinearOpMode {
             if (gamepad2.dpad_down && targetElbowPosition >= 0) {
                 targetElbowPosition -= ARM_ELBOW_INCEMENTOR;
             }
-            if (gamepad2.dpad_up && targetElbowPosition <= 180) {
+            if (gamepad2.dpad_up && targetElbowPosition <= 240) {
                 targetElbowPosition += ARM_ELBOW_INCEMENTOR;
             }
             elbow.setTargetPosition(targetElbowPosition);
@@ -169,7 +169,7 @@ public class TitanDriveAndArm extends LinearOpMode {
             // ELBOW - END
 
             // ARM - START
-            if (gamepad2.right_bumper && targetArmPosition <= 500) {
+            if (gamepad2.right_bumper && targetArmPosition <= 490) {
                 targetArmPosition += ARM_ELBOW_INCEMENTOR;
             }
             if (gamepad2.left_bumper && targetArmPosition >= 0) {

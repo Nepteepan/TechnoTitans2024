@@ -113,7 +113,7 @@ public class NetScoring extends LinearOpMode {
             closeClaw();
             sleep(500);
             moveNumberOfInches(-40, 1);
-            sleep(500);
+            sleep(2000);
             armMotor.setTargetPosition(0);
             sleep(500);
             requestOpModeStop();
