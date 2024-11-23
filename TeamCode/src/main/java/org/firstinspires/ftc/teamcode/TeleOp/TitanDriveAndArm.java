@@ -18,6 +18,8 @@ public class TitanDriveAndArm extends LinearOpMode {
     private int targetArmPosition = 100;
     private int targetElbowPosition = 0;
 
+    private int ARM_ELBOW_INCEMENTOR = 12;
+
     public DcMotor elbow;
     public DcMotor armMotor; // the arm motor
     public Servo leftClaw;
@@ -156,10 +158,10 @@ public class TitanDriveAndArm extends LinearOpMode {
 
             // ELBOW - START
             if (gamepad2.dpad_down && targetElbowPosition >= 0) {
-                targetElbowPosition -= 8;
+                targetElbowPosition -= ARM_ELBOW_INCEMENTOR;
             }
             if (gamepad2.dpad_up && targetElbowPosition <= 180) {
-                targetElbowPosition += 8;
+                targetElbowPosition += ARM_ELBOW_INCEMENTOR;
             }
             elbow.setTargetPosition(targetElbowPosition);
             elbow.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -168,10 +170,10 @@ public class TitanDriveAndArm extends LinearOpMode {
 
             // ARM - START
             if (gamepad2.right_bumper && targetArmPosition <= 500) {
-                targetArmPosition += 8;
+                targetArmPosition += ARM_ELBOW_INCEMENTOR;
             }
             if (gamepad2.left_bumper && targetArmPosition >= 0) {
-                targetArmPosition -= 8;
+                targetArmPosition -= ARM_ELBOW_INCEMENTOR;
             }
 
             armMotor.setTargetPosition(targetArmPosition);

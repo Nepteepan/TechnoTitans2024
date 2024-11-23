@@ -106,7 +106,7 @@ public class NetScoring extends LinearOpMode {
             armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             armMotor.setPower(1);
             sleep(500);
-            moveNumberOfInches(42, 1);
+            moveNumberOfInches(42, .5);
             sleep(2000);
             openClaw();
             sleep(500);
